@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <style>
+        #map {
+            width: 1967px;
+            height: 1212px;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Popolazioneresidenteetempodiinterventominimoinminuti_1.js"></script>
+        <script src="data/Confinicomunali_2.js"></script>
+        <script src="data/Confinidistrettisanitari_3.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[45.00031345772944,7.660806855179385],[45.66587173870363,9.198342692843902]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    // Aggiorna il popup quando il video carica i metadati
+                    video.addEventListener('loadedmetadata', function() {
+                        popup.update();
+                    });
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OpenStreetMap_0');
+        map.getPane('pane_OpenStreetMap_0').style.zIndex = 400;
+        var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OpenStreetMap_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        function pop_Popolazioneresidenteetempodiinterventominimoinminuti_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">T</th>\
+                        <td class="visible-with-data" id="T">' + (feature.properties['T'] !== null ? autolinker.link(String(feature.properties['T']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['M'] !== null ? autolinker.link(String(feature.properties['M']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['F'] !== null ? autolinker.link(String(feature.properties['F']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tempo_min'] !== null ? autolinker.link(String(feature.properties['tempo_min']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['pop_vis'] !== null ? autolinker.link(String(feature.properties['pop_vis']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Popolazioneresidenteetempodiinterventominimoinminuti_1_0(feature) {
+            switch(String(feature.properties['tempo_min'])) {
+                case '5':
+                    return {
+                pane: 'pane_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+                radius: 4.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,31,0,1.0)',
+                interactive: false,
+            }
+                    break;
+                case '10':
+                    return {
+                pane: 'pane_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+                radius: 4.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,114,82,1.0)',
+                interactive: false,
+            }
+                    break;
+                case '15':
+                    return {
+                pane: 'pane_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+                radius: 4.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,175,175,1.0)',
+                interactive: false,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+                radius: 4.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,232,232,1.0)',
+                interactive: false,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Popolazioneresidenteetempodiinterventominimoinminuti_1');
+        map.getPane('pane_Popolazioneresidenteetempodiinterventominimoinminuti_1').style.zIndex = 401;
+        map.getPane('pane_Popolazioneresidenteetempodiinterventominimoinminuti_1').style['mix-blend-mode'] = 'normal';
+        var layer_Popolazioneresidenteetempodiinterventominimoinminuti_1 = new L.geoJson(json_Popolazioneresidenteetempodiinterventominimoinminuti_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+            layerName: 'layer_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+            pane: 'pane_Popolazioneresidenteetempodiinterventominimoinminuti_1',
+            onEachFeature: pop_Popolazioneresidenteetempodiinterventominimoinminuti_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Popolazioneresidenteetempodiinterventominimoinminuti_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Popolazioneresidenteetempodiinterventominimoinminuti_1);
+        map.addLayer(layer_Popolazioneresidenteetempodiinterventominimoinminuti_1);
+        function pop_Confinicomunali_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISTAT'] !== null ? autolinker.link(String(feature.properties['ISTAT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISOLA'] !== null ? autolinker.link(String(feature.properties['ISOLA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tabcomuni_'] !== null ? autolinker.link(String(feature.properties['tabcomuni_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TOPONIMO'] !== null ? autolinker.link(String(feature.properties['TOPONIMO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FK_CMON'] !== null ? autolinker.link(String(feature.properties['FK_CMON']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FK_OLD_CM'] !== null ? autolinker.link(String(feature.properties['FK_OLD_CM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['USSL'] !== null ? autolinker.link(String(feature.properties['USSL']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OLD_ISTAT'] !== null ? autolinker.link(String(feature.properties['OLD_ISTAT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PROV'] !== null ? autolinker.link(String(feature.properties['PROV']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATA_IN'] !== null ? autolinker.link(String(feature.properties['DATA_IN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATA_FINE'] !== null ? autolinker.link(String(feature.properties['DATA_FINE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Confinicomunali_2_0() {
+            return {
+                pane: 'pane_Confinicomunali_2',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.432)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Confinicomunali_2');
+        map.getPane('pane_Confinicomunali_2').style.zIndex = 402;
+        map.getPane('pane_Confinicomunali_2').style['mix-blend-mode'] = 'normal';
+        var layer_Confinicomunali_2 = new L.geoJson(json_Confinicomunali_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Confinicomunali_2',
+            layerName: 'layer_Confinicomunali_2',
+            pane: 'pane_Confinicomunali_2',
+            onEachFeature: pop_Confinicomunali_2,
+            style: style_Confinicomunali_2_0,
+        });
+        bounds_group.addLayer(layer_Confinicomunali_2);
+        map.addLayer(layer_Confinicomunali_2);
+        function pop_Confinidistrettisanitari_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COD_REG'] !== null ? autolinker.link(String(feature.properties['COD_REG']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PRO_COM_T'] !== null ? autolinker.link(String(feature.properties['PRO_COM_T']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COD_DISTR'] !== null ? autolinker.link(String(feature.properties['COD_DISTR']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['pop_distr'] !== null ? autolinker.link(String(feature.properties['pop_distr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Confinidistrettisanitari_3_0() {
+            return {
+                pane: 'pane_Confinidistrettisanitari_3',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.373)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Confinidistrettisanitari_3');
+        map.getPane('pane_Confinidistrettisanitari_3').style.zIndex = 403;
+        map.getPane('pane_Confinidistrettisanitari_3').style['mix-blend-mode'] = 'normal';
+        var layer_Confinidistrettisanitari_3 = new L.geoJson(json_Confinidistrettisanitari_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Confinidistrettisanitari_3',
+            layerName: 'layer_Confinidistrettisanitari_3',
+            pane: 'pane_Confinidistrettisanitari_3',
+            onEachFeature: pop_Confinidistrettisanitari_3,
+            style: style_Confinidistrettisanitari_3_0,
+        });
+        bounds_group.addLayer(layer_Confinidistrettisanitari_3);
+        map.addLayer(layer_Confinidistrettisanitari_3);
+        const url = {"Nominatim OSM": "https://nominatim.openstreetmap.org/search?format=geojson&addressdetails=1&",
+        "France BAN": "https://api-adresse.data.gouv.fr/search/?"}
+        var photonControl = L.control.photon({
+            url: url["Nominatim OSM"],
+            feedbackLabel: '',
+            position: 'topleft',
+            includePosition: true,
+            initial: true,
+            // resultsHandler: myHandler,
+        }).addTo(map);
+        photonControl._container.childNodes[0].style.borderRadius="10px"
+        // Create a variable to store the geoJSON data
+        var x = null;
+        // Create a variable to store the marker
+        var marker = null;
+        // Add an event listener to the Photon control to create a marker from the returned geoJSON data
+        var z = null;
+        photonControl.on('selected', function(e) {
+            console.log(photonControl.search.resultsContainer);
+            if (x != null) {
+                map.removeLayer(obj3.marker);
+                map.removeLayer(x);
+            }
+            obj2.gcd = e.choice;
+            x = L.geoJSON(obj2.gcd).addTo(map);
+            var label = typeof obj2.gcd.properties.label === 'undefined' ? obj2.gcd.properties.display_name : obj2.gcd.properties.label;
+            obj3.marker = L.marker(x.getLayers()[0].getLatLng()).bindPopup(label).addTo(map);
+            map.setView(x.getLayers()[0].getLatLng(), 17);
+            z = typeof e.choice.properties.label === 'undefined'? e.choice.properties.display_name : e.choice.properties.label;
+            console.log(e);
+            e.target.input.value = z;
+        });
+        var search = document.getElementsByClassName("leaflet-photon leaflet-control")[0];
+        search.classList.add("leaflet-control-search")
+        search.style.display = "flex";
+        search.style.backgroundColor="rgba(255,255,255,0.5)" 
+
+        // Create the new button element
+        var button = document.createElement("div");
+        button.id = "gcd-button-control";
+        button.className = "gcd-gl-btn fa fa-search search-button";
+
+        // Insert the button at the beginning of the search control
+        search.insertBefore(button, search.firstChild);
+        last = search.lastChild;
+        last.style.display = "none";
+        button.addEventListener("click", function (e) {
+            if (last.style.display === "none") {
+                last.style.display = "block";
+            } else {
+                last.style.display = "none";
+            }
+        });
+        var overlaysTree = [
+            {label: '<img src="legend/Confinidistrettisanitari_3.png" /> Confini distretti sanitari', layer: layer_Confinidistrettisanitari_3},
+            {label: '<img src="legend/Confinicomunali_2.png" /> Confini comunali', layer: layer_Confinicomunali_2},
+            {label: 'Popolazione residente e tempo di intervento minimo (in minuti)<br /><table><tr><td style="text-align: center;"><img src="legend/Popolazioneresidenteetempodiinterventominimoinminuti_1_50.png" /></td><td>5</td></tr><tr><td style="text-align: center;"><img src="legend/Popolazioneresidenteetempodiinterventominimoinminuti_1_101.png" /></td><td>10</td></tr><tr><td style="text-align: center;"><img src="legend/Popolazioneresidenteetempodiinterventominimoinminuti_1_152.png" /></td><td>15</td></tr><tr><td style="text-align: center;"><img src="legend/Popolazioneresidenteetempodiinterventominimoinminuti_1_3.png" /></td><td></td></tr></table>', layer: layer_Popolazioneresidenteetempodiinterventominimoinminuti_1},
+            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"USSL": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_USSL = document.createElement('div');
+            div_USSL.id = "div_USSL";
+            div_USSL.className= "filterselect";
+            document.getElementById("menu").appendChild(div_USSL);
+            sel_USSL = document.createElement('select');
+            sel_USSL.multiple = true;
+            sel_USSL.size = 10;
+            sel_USSL.id = "sel_USSL";
+            var USSL_options_str = "<option value='' unselected></option>";
+            sel_USSL.onchange = function(){filterFunc()};
+            USSL_options_str  += '<option value="NULL">NULL</option>';
+            USSL_options_str  += '<option value="01">01</option>';
+            USSL_options_str  += '<option value="05">05</option>';
+            USSL_options_str  += '<option value="06">06</option>';
+            USSL_options_str  += '<option value="07">07</option>';
+            USSL_options_str  += '<option value="08">08</option>';
+            USSL_options_str  += '<option value="09">09</option>';
+            USSL_options_str  += '<option value="10">10</option>';
+            USSL_options_str  += '<option value="11">11</option>';
+            USSL_options_str  += '<option value="12">12</option>';
+            USSL_options_str  += '<option value="13">13</option>';
+            USSL_options_str  += '<option value="14">14</option>';
+            USSL_options_str  += '<option value="15">15</option>';
+            USSL_options_str  += '<option value="16">16</option>';
+            USSL_options_str  += '<option value="17">17</option>';
+            USSL_options_str  += '<option value="18">18</option>';
+            USSL_options_str  += '<option value="19">19</option>';
+            USSL_options_str  += '<option value="20">20</option>';
+            USSL_options_str  += '<option value="21">21</option>';
+            USSL_options_str  += '<option value="22">22</option>';
+            sel_USSL.innerHTML = USSL_options_str;
+            div_USSL.appendChild(sel_USSL);
+            var lab_USSL = document.createElement('div');
+            lab_USSL.innerHTML = 'USSL';
+            lab_USSL.className = 'filterlabel';
+            div_USSL.appendChild(lab_USSL);
+            var reset_USSL = document.createElement('div');
+            reset_USSL.innerHTML = 'clear filter';
+            reset_USSL.className = 'filterlabel';
+            reset_USSL.onclick = function() {
+                var options = document.getElementById("sel_USSL").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_USSL.appendChild(reset_USSL);
+        </script>
+    </body>
+</html>
